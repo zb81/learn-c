@@ -7,3 +7,4 @@
 !.editorconfig
 *test*
 !*.pdf
+!*.txt
