@@ -38,6 +38,7 @@ int main() {
 	delElem(list, 5);
 	show(list);
 
+	free(list);
 	return 0;
 }
 
