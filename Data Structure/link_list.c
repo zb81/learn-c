@@ -15,34 +15,102 @@ typedef struct Node {
 
 typedef struct Node * LinkList; // pointer, point to the head node
 
-Status getElem(const LinkList list, int n, ElemType * e);
+Status getElem(const LinkList list, int i, ElemType * e);
+Status insertElem(LinkList list, int i, ElemType e);
+Status delElem(LinkList list, int i);
+
 void init(LinkList list, int n);
 void show(const LinkList list);
 
 int main() {
 	LinkList list = (Node *)malloc(sizeof(Node));
 	init(list, 10);
-	show(list->next);
+	show(list);
 
 	ElemType target;
-	if(~getElem(list, 13, &target))
+	if(~getElem(list, 0, &target))
 		printf("target is %d\n", target);
+
+	insertElem(list, 11, 99);
+	show(list);
+
+	delElem(list, 1);
+	delElem(list, 5);
+	show(list);
 
 	return 0;
 }
 
-Status getElem(const LinkList list, int n, ElemType * e) {
-	int i;
+// get the element at position `i`
+Status getElem(const LinkList list, int i, ElemType * e) {
+	if (i < 1) {
+		fprintf(stderr, "ERROR: i cannot less than 1.\n");
+		return ERROR;
+	}
+	int start;
 	Node * p = list->next;
-	for(i=1; i<n && p; i++) {
+	for(start=1; start<i && p; start++) {
 		p = p->next;
 	}
 	if (!p) {
-		printf("ERROR: Cannot found the %dth element.\n", n);
+		fprintf(stderr, "ERROR: Cannot find the %dth element.\n", i);
 		return ERROR;
 	}
 
 	*e = p->data;
+	return OK;
+}
+
+// insert an element at position `i`
+Status insertElem(LinkList list, int i, ElemType e) {
+	if (i < 1) {
+		fprintf(stderr, "ERROR: i cannot less than 1.\n");
+		return ERROR;
+	}
+
+	Node * p = list;
+	int n = i;
+	while(p && n>1) {
+		p = p->next;
+		n--;
+	}
+	if (!p) {
+		fprintf(stderr, "ERROR: Cannot find the %dth element.\n", i);
+		return ERROR;
+	}
+
+	// create node
+	Node * node = (Node *)malloc(sizeof(Node));
+	node->data = e;
+	node->next = p->next;
+	p->next = node;
+
+	return OK;
+}
+
+// delete the element at position `i`
+Status delElem(LinkList list, int i) {
+	if (i < 1) {
+		fprintf(stderr, "ERROR: i cannot less than 1.\n");
+		return ERROR;
+	}
+
+	Node * p = list;
+	Node * prev;
+	int n = i;
+	while(p && n>0) {
+		prev = p;
+		p = p->next;
+		n--;
+	}
+	if (!p || !prev) {
+		fprintf(stderr, "ERROR: Cannot find the %dth element.\n", i);
+		return ERROR;
+	}
+
+	prev->next = p->next;
+	free(p);
+
 	return OK;
 }
 
@@ -58,7 +126,7 @@ void init(LinkList list, int n) {
 }
 
 void show(const LinkList list) {
-	Node * p = list;
+	Node * p = list->next;
 	while(p) {
 		printf("%d ", p->data);
 		p = p->next;
